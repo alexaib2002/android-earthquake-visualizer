@@ -5,11 +5,10 @@ import androidx.room.Query;
 
 import org.dam.earthquakevisualizer.javabeans.Earthquake;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Dao
-public interface EarthquakeDAO {
+public interface EarthquakeDao {
     // Getter queries
     @Query("SELECT * FROM earthquakes")
     List<Earthquake> getAll();

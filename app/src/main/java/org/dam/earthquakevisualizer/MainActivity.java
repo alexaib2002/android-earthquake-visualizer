@@ -1,21 +1,20 @@
 package org.dam.earthquakevisualizer;
 
-import androidx.appcompat.app.AlertDialog;
+import android.os.Bundle;
+import android.widget.Button;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Bundle;
-import android.widget.Button;
-import android.widget.Filter;
-
+import org.dam.earthquakevisualizer.dao.EarthquakeDao;
 import org.dam.earthquakevisualizer.db.AppDatabase;
 import org.dam.earthquakevisualizer.db.DbDataLoad;
+import org.dam.earthquakevisualizer.interfaces.ExecutableFilter;
 import org.dam.earthquakevisualizer.javabeans.Country;
 import org.dam.earthquakevisualizer.javabeans.Earthquake;
 
 import java.util.ArrayList;
-import java.util.concurrent.Callable;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView earthquakeRecView;
     private RecyclerView.LayoutManager layoutManager;
     private ArrayList<Earthquake> earthquakeList = new ArrayList<>();
+    private ExecutableFilter filterDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,16 +37,24 @@ public class MainActivity extends AppCompatActivity {
 
         layoutManager = new LinearLayoutManager(this);
         earthquakeRecView.setLayoutManager(layoutManager);
-        earthquakeList.addAll(AppDatabase.getInstance(this).earthquakeDAO().getAll());
         earthquakeRecView.setAdapter(new EarthquakeAdapter(earthquakeList));
 
         filterBtn.setOnClickListener(v -> {
             FilterDialog filterDialog = new FilterDialog();
+            filterDialog.setActivity(this);
             filterDialog.show(getSupportFragmentManager(), "filterDialog");
         });
-        queryBtn.setOnClickListener(v -> {
 
+        filterDao = AppDatabase.getInstance(this).earthquakeDAO()::getAll; // set reference
+        queryBtn.setOnClickListener(v -> {
+            earthquakeList.clear();
+            earthquakeList.addAll(filterDao.run());
+            earthquakeRecView.getAdapter().notifyDataSetChanged();
         });
+    }
+
+    public void setFilterDao(ExecutableFilter filterDao) {
+        this.filterDao = filterDao;
     }
 
     private void initDbLoad() {

@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.dam.earthquakevisualizer.javabeans.Earthquake;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class EarthquakeAdapter
         extends RecyclerView.Adapter<EarthquakeAdapter.EarthquakeViewHolder> {

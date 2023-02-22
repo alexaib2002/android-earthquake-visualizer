@@ -8,7 +8,7 @@ import org.dam.earthquakevisualizer.javabeans.Country;
 import java.util.List;
 
 @Dao
-public interface CountryDAO {
+public interface CountryDao {
     @Query("SELECT * FROM affected_countries")
     List<Country> getAll();
 
