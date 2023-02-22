@@ -1,11 +1,13 @@
 package org.dam.earthquakevisualizer;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.Filter;
 
 import org.dam.earthquakevisualizer.db.AppDatabase;
 import org.dam.earthquakevisualizer.db.DbDataLoad;
@@ -13,11 +15,12 @@ import org.dam.earthquakevisualizer.javabeans.Country;
 import org.dam.earthquakevisualizer.javabeans.Earthquake;
 
 import java.util.ArrayList;
+import java.util.concurrent.Callable;
 
 public class MainActivity extends AppCompatActivity {
 
     private Button filterBtn;
-    private Button clearBtn;
+    private Button queryBtn;
     private RecyclerView earthquakeRecView;
     private RecyclerView.LayoutManager layoutManager;
     private ArrayList<Earthquake> earthquakeList = new ArrayList<>();
@@ -29,13 +32,21 @@ public class MainActivity extends AppCompatActivity {
         initDbLoad();
 
         filterBtn = findViewById(R.id.filterBtn);
-        clearBtn = findViewById(R.id.clearBtn);
+        queryBtn = findViewById(R.id.queryBtn);
         earthquakeRecView = findViewById(R.id.earthquakeRecView);
 
         layoutManager = new LinearLayoutManager(this);
         earthquakeRecView.setLayoutManager(layoutManager);
         earthquakeList.addAll(AppDatabase.getInstance(this).earthquakeDAO().getAll());
         earthquakeRecView.setAdapter(new EarthquakeAdapter(earthquakeList));
+
+        filterBtn.setOnClickListener(v -> {
+            FilterDialog filterDialog = new FilterDialog();
+            filterDialog.show(getSupportFragmentManager(), "filterDialog");
+        });
+        queryBtn.setOnClickListener(v -> {
+
+        });
     }
 
     private void initDbLoad() {
