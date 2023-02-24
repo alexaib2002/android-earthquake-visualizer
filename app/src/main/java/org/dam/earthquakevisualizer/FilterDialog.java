@@ -80,10 +80,11 @@ public class FilterDialog extends DialogFragment {
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, countryDao
                 .getCountries()));
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                .setTitle("Selección de filtro")
+                .setTitle(getResources().getString(R.string.title_filter_dialog))
                 .setView(v)
-                .setPositiveButton("Aplicar filtro", null)
-                .setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss())
+                .setPositiveButton(getResources().getText(R.string.filter_apply_btn), null)
+                .setNegativeButton(getResources().getString(R.string.filter_cancel_btn),
+                        (dialog, which) -> dialog.dismiss())
                 .show();
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(acceptListener);
         return alertDialog;
@@ -98,21 +99,22 @@ public class FilterDialog extends DialogFragment {
     private class FilterAcceptListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
+            String allTxt = getResources().getStringArray(R.array.operators)[0];
             ExecutableFilter magnitudeFilter = null;
             ExecutableFilter countryFilter = null;
             // Try with magnitude filter
             if (magnitudeChk.isChecked()) {
                 if (valueEditText.getText().toString().isEmpty() && !operatorSpn.getSelectedItem()
-                        .equals("Todas")) {
-                    valueEditText.setError("Debe introducir un valor numérico");
+                        .equals(allTxt)) {
+                    valueEditText.setError(getString(R.string.err_number_value));
                     return;
                 } else if (!valueEditText.getText().toString().isEmpty() && operatorSpn
-                        .getSelectedItem().equals("Todas")) {
+                        .getSelectedItem().equals(allTxt)) {
                     Toast.makeText(mainActivity,
-                            "Debe seleccionar un operador para el valor introducido",
+                            getResources().getText(R.string.err_operator_val),
                             Toast.LENGTH_SHORT).show();
                     return;
-                } else if (operatorSpn.getSelectedItem().equals("Todas")) {
+                } else if (operatorSpn.getSelectedItem().equals(allTxt)) {
                     magnitudeFilter = earthquakeDao::getAll;
                 } else {
                     Double inputMagnitude = Double
@@ -163,7 +165,7 @@ public class FilterDialog extends DialogFragment {
                 dismiss();
             }
             else {
-                Toast.makeText(mainActivity, "Debe seleccionar al menos un filtro",
+                Toast.makeText(mainActivity, R.string.err_no_filter,
                         Toast.LENGTH_SHORT).show();
             }
         }

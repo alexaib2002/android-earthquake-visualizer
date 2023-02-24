@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
             earthquakeList.clear();
             earthquakeList.addAll(filterDao.run());
             if (earthquakeList.size() == 0)
-                Toast.makeText(this, "No se han encontrado resultados",
+                Toast.makeText(this, getResources().getString(R.string.err_no_data_found),
                         Toast.LENGTH_SHORT).show();
             earthquakeRecView.getAdapter().notifyDataSetChanged();
         });

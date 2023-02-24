@@ -14,4 +14,11 @@
     <string name="frag_eq_death_ph_txt">2366</string>
     <string name="frag_eq_coord_txt">Coordenadas</string>
     <string name="frag_eq_coord_ph_txt">11°21′00′′S 77°16′48′′O</string>
+    <string name="err_number_value">Debe introducir un valor numérico</string>
+    <string name="err_operator_val">Debe seleccionar un operador para el valor introducido</string>
+    <string name="err_no_filter">Debe seleccionar al menos un filtro</string>
+    <string name="title_filter_dialog">Selección de filtro</string>
+    <string name="filter_apply_btn">Aplicar filtro</string>
+    <string name="filter_cancel_btn">Cancelar</string>
+    <string name="err_no_data_found">No se han encontrado resultados</string>
 </resources>
