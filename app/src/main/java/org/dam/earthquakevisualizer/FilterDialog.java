@@ -46,7 +46,8 @@ public class FilterDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        View v = getActivity().getLayoutInflater().inflate(R.layout.fragment_filter_dialog, null);
+        View v = getActivity().getLayoutInflater().inflate(R.layout.fragment_filter_dialog,
+                null);
         // Init components
         operatorSpn = v.findViewById(R.id.operatorSpn);
         valueEditText = v.findViewById(R.id.valueEditText);
@@ -76,7 +77,8 @@ public class FilterDialog extends DialogFragment {
             countrySpn.setEnabled(false);
         });
         countrySpn.setAdapter(new ArrayAdapter<>(v.getContext(),
-                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, countryDao.getCountries()));
+                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, countryDao
+                .getCountries()));
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setTitle("Selección de filtro")
                 .setView(v)
@@ -103,6 +105,12 @@ public class FilterDialog extends DialogFragment {
                 if (valueEditText.getText().toString().isEmpty() && !operatorSpn.getSelectedItem()
                         .equals("Todas")) {
                     valueEditText.setError("Debe introducir un valor numérico");
+                    return;
+                } else if (!valueEditText.getText().toString().isEmpty() && operatorSpn
+                        .getSelectedItem().equals("Todas")) {
+                    Toast.makeText(mainActivity,
+                            "Debe seleccionar un operador para el valor introducido",
+                            Toast.LENGTH_SHORT).show();
                     return;
                 } else if (operatorSpn.getSelectedItem().equals("Todas")) {
                     magnitudeFilter = earthquakeDao::getAll;
@@ -155,7 +163,8 @@ public class FilterDialog extends DialogFragment {
                 dismiss();
             }
             else {
-                Toast.makeText(mainActivity, "Debe seleccionar al menos un filtro", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mainActivity, "Debe seleccionar al menos un filtro",
+                        Toast.LENGTH_SHORT).show();
             }
         }
     }
