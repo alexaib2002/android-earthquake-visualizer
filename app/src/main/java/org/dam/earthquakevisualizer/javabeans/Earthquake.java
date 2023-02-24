@@ -6,6 +6,8 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import java.util.Objects;
+
 @Entity(
         tableName = "earthquakes",
         indices = {
@@ -65,5 +67,18 @@ public class Earthquake {
 
     public String getDeathToll() {
         return deathToll;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Earthquake that = (Earthquake) o;
+        return date.equals(that.date) && Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(date, name);
     }
 }

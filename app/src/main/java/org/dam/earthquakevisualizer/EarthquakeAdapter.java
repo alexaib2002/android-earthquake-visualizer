@@ -48,12 +48,12 @@ public class EarthquakeAdapter
     }
 
     public static class EarthquakeViewHolder extends RecyclerView.ViewHolder {
-        private TextView nameTv;
-        private TextView dateTv;
-        private TextView magnitudeTv;
-        private TextView locationTv;
-        private TextView deathTv;
-        private TextView cordsTv;
+        private final TextView nameTv;
+        private final TextView dateTv;
+        private final TextView magnitudeTv;
+        private final TextView locationTv;
+        private final TextView deathTv;
+        private final TextView cordsTv;
 
         public EarthquakeViewHolder(@NonNull View itemView) {
             super(itemView);

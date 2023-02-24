@@ -47,20 +47,44 @@ public class FilterDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View v = getActivity().getLayoutInflater().inflate(R.layout.fragment_filter_dialog, null);
+        // Init components
         operatorSpn = v.findViewById(R.id.operatorSpn);
         valueEditText = v.findViewById(R.id.valueEditText);
         countrySpn = v.findViewById(R.id.countrySpn);
         spnStr = getResources().getStringArray(R.array.operators);
         magnitudeChk = v.findViewById(R.id.magnitudeChk);
         countryChk = v.findViewById(R.id.countryChk);
+        operatorSpn.setEnabled(false);
+        valueEditText.setEnabled(false);
+        countrySpn.setEnabled(false);
+        // Set listeners
+        magnitudeChk.setOnClickListener(v1 -> {
+            valueEditText.setError(null);
+            if (magnitudeChk.isChecked()) {
+                operatorSpn.setEnabled(true);
+                valueEditText.setEnabled(true);
+                return;
+            }
+            operatorSpn.setEnabled(false);
+            valueEditText.setEnabled(false);
+        });
+        countryChk.setOnClickListener(v2 -> {
+            if (countryChk.isChecked()) {
+                countrySpn.setEnabled(true);
+                return;
+            }
+            countrySpn.setEnabled(false);
+        });
         countrySpn.setAdapter(new ArrayAdapter<>(v.getContext(),
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, countryDao.getCountries()));
-        return new AlertDialog.Builder(getActivity())
+        AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setTitle("Selección de filtro")
                 .setView(v)
-                .setPositiveButton("Aplicar filtro", acceptListener)
+                .setPositiveButton("Aplicar filtro", null)
                 .setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss())
-                .create();
+                .show();
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(acceptListener);
+        return alertDialog;
     }
 
     public void setActivity(MainActivity mainActivity) {
@@ -69,19 +93,38 @@ public class FilterDialog extends DialogFragment {
         countryDao = AppDatabase.getInstance(mainActivity).countryDAO();
     }
 
-    private class FilterAcceptListener implements DialogInterface.OnClickListener {
+    private class FilterAcceptListener implements View.OnClickListener {
         @Override
-        public void onClick(DialogInterface dialog, int which) {
-            if (operatorSpn.getSelectedItem().equals("Todas") // Filter reset
-                    && countrySpn.getSelectedItem().toString().isEmpty()) {
-                mainActivity.setFilterDao(earthquakeDao::getAll);
-                return;
-            }
+        public void onClick(View v) {
             ExecutableFilter magnitudeFilter = null;
             ExecutableFilter countryFilter = null;
             // Try with magnitude filter
             if (magnitudeChk.isChecked()) {
-                magnitudeFilter = getMagnitudeFilter();
+                if (valueEditText.getText().toString().isEmpty() && !operatorSpn.getSelectedItem()
+                        .equals("Todas")) {
+                    valueEditText.setError("Debe introducir un valor numérico");
+                    return;
+                } else if (operatorSpn.getSelectedItem().equals("Todas")) {
+                    magnitudeFilter = earthquakeDao::getAll;
+                } else {
+                    Double inputMagnitude = Double
+                            .parseDouble(valueEditText.getText().toString());
+                    HashMap<String, ExecutableFilter> filterMap = new
+                            HashMap<String, ExecutableFilter>() {{
+                                put(spnStr[1], () ->
+                                        earthquakeDao.getGreaterMagnitude(inputMagnitude));
+                                put(spnStr[2], () ->
+                                        earthquakeDao.getLessMagnitude(inputMagnitude));
+                                put(spnStr[3], () ->
+                                        earthquakeDao.getEqualMagnitude(inputMagnitude));
+                                put(spnStr[4], () ->
+                                        earthquakeDao.getGreaterOrEqualMagnitude(inputMagnitude));
+                                put(spnStr[5], () ->
+                                        earthquakeDao.getLessOrEqualMagnitude(inputMagnitude));
+                            }};
+                    // Set the filter in MainActivity
+                    magnitudeFilter = filterMap.get(operatorSpn.getSelectedItem());
+                }
             }
             // Try with country filter
             if (countryChk.isChecked()) {
@@ -102,41 +145,18 @@ public class FilterDialog extends DialogFragment {
                     }
                     return bothList;
                 });
-            } else if (magnitudeFilter != null)
+                dismiss();
+            } else if (magnitudeFilter != null) {
                 mainActivity.setFilterDao(magnitudeFilter);
-            else if (countryFilter != null)
+                dismiss();
+            }
+            else if (countryFilter != null) {
                 mainActivity.setFilterDao(countryFilter);
-        }
-
-        private ExecutableFilter getMagnitudeFilter() {
-            if (valueEditText.getText().toString().isEmpty()) {
-                valueEditText.setError("Debe introducir un valor numérico");
-                return null;
+                dismiss();
             }
-            if (operatorSpn.getSelectedItem().equals("Todas")) {
-                operatorSpn.requestFocus();
-                Toast.makeText(mainActivity,
-                        "Debes seleccionar un filtro para el valor numerico introducido",
-                        Toast.LENGTH_SHORT).show();
-                return null;
+            else {
+                Toast.makeText(mainActivity, "Debe seleccionar al menos un filtro", Toast.LENGTH_SHORT).show();
             }
-            Double inputMagnitude = Double
-                    .parseDouble(valueEditText.getText().toString());
-            HashMap<String, ExecutableFilter> filterMap = new
-                    HashMap<String, ExecutableFilter>() {{
-                        put(spnStr[1], () ->
-                                earthquakeDao.getGreaterMagnitude(inputMagnitude));
-                        put(spnStr[2], () ->
-                                earthquakeDao.getLessMagnitude(inputMagnitude));
-                        put(spnStr[3], () ->
-                                earthquakeDao.getEqualMagnitude(inputMagnitude));
-                        put(spnStr[4], () ->
-                                earthquakeDao.getGreaterOrEqualMagnitude(inputMagnitude));
-                        put(spnStr[5], () ->
-                                earthquakeDao.getLessOrEqualMagnitude(inputMagnitude));
-                    }};
-            // Set the filter in MainActivity
-            return filterMap.get(operatorSpn.getSelectedItem());
         }
     }
 }
