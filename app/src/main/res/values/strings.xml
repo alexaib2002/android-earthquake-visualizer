@@ -4,4 +4,14 @@
     <string name="filter_btn">Filtrar</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="magnitude_txtedit">Magnitud</string>
+    <string name="magnitude_chkbox">Magnitud</string>
+    <string name="country_chkbox">País</string>
+    <string name="frag_eq_name_txt">Terremoto de Prueba</string>
+    <string name="frag_eq_date_txt">1 de enero de 1970, 00:00</string>
+    <string name="frag_eq_loc_txt">Localización de prueba</string>
+    <string name="frag_eq_death_txt">Estimación de muertes</string>
+    <string name="frag_eq_death_ph_txt">2366</string>
+    <string name="frag_eq_coord_txt">Coordenadas</string>
+    <string name="frag_eq_coord_ph_txt">11°21′00′′S 77°16′48′′O</string>
 </resources>

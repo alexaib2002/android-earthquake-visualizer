@@ -11,7 +11,7 @@
         android:id="@+id/magnitudeChk"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Magnitud"
+        android:text="@string/magnitude_chkbox"
         android:textSize="16sp" />
 
     <LinearLayout
@@ -32,8 +32,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
-            android:hint="Introduce la magnitud"
-            android:inputType="textPersonName"
+            android:hint="@string/magnitude_txtedit"
+            android:inputType="number"
             android:textSize="14sp" />
 
     </LinearLayout>
@@ -42,7 +42,7 @@
         android:id="@+id/countryChk"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="País"
+        android:text="@string/country_chkbox"
         android:textSize="16sp" />
 
     <Spinner
