@@ -2,6 +2,7 @@ package org.dam.earthquakevisualizer;
 
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -50,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
         queryBtn.setOnClickListener(v -> {
             earthquakeList.clear();
             earthquakeList.addAll(filterDao.run());
+            if (earthquakeList.size() == 0)
+                Toast.makeText(this, "No se han encontrado resultados",
+                        Toast.LENGTH_SHORT).show();
             earthquakeRecView.getAdapter().notifyDataSetChanged();
         });
     }
