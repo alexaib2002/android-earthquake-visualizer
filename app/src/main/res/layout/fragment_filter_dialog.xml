@@ -7,7 +7,8 @@
     android:padding="16dp"
     tools:context=".FilterDialog">
 
-    <TextView
+    <CheckBox
+        android:id="@+id/magnitudeChk"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Magnitud"
@@ -37,7 +38,8 @@
 
     </LinearLayout>
 
-    <TextView
+    <CheckBox
+        android:id="@+id/countryChk"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="País"

@@ -6,8 +6,10 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,6 +35,8 @@ public class FilterDialog extends DialogFragment {
     protected TextView valueEditText;
     protected Spinner countrySpn;
     protected MainActivity mainActivity;
+    protected CheckBox magnitudeChk;
+    protected CheckBox countryChk;
     protected String[] spnStr;
 
     public FilterDialog() {
@@ -47,6 +51,8 @@ public class FilterDialog extends DialogFragment {
         valueEditText = v.findViewById(R.id.valueEditText);
         countrySpn = v.findViewById(R.id.countrySpn);
         spnStr = getResources().getStringArray(R.array.operators);
+        magnitudeChk = v.findViewById(R.id.magnitudeChk);
+        countryChk = v.findViewById(R.id.countryChk);
         countrySpn.setAdapter(new ArrayAdapter<>(v.getContext(),
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, countryDao.getCountries()));
         return new AlertDialog.Builder(getActivity())
@@ -66,38 +72,23 @@ public class FilterDialog extends DialogFragment {
     private class FilterAcceptListener implements DialogInterface.OnClickListener {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            // Should we reset the filter back to all?
-            if (operatorSpn.getSelectedItem().equals("Todas")
+            if (operatorSpn.getSelectedItem().equals("Todas") // Filter reset
                     && countrySpn.getSelectedItem().toString().isEmpty()) {
                 mainActivity.setFilterDao(earthquakeDao::getAll);
                 return;
             }
             ExecutableFilter magnitudeFilter = null;
             ExecutableFilter countryFilter = null;
-            if (!operatorSpn.getSelectedItem().equals("Todas")
-                    && !valueEditText.getText().toString().isEmpty()) {
-                Double inputMagnitude = Double
-                        .parseDouble(valueEditText.getText().toString());
-                HashMap<String, ExecutableFilter> filterMap = new
-                        HashMap<String, ExecutableFilter>() {{
-                            put(spnStr[1], () ->
-                                    earthquakeDao.getGreaterMagnitude(inputMagnitude));
-                            put(spnStr[2], () ->
-                                    earthquakeDao.getLessMagnitude(inputMagnitude));
-                            put(spnStr[3], () ->
-                                    earthquakeDao.getEqualMagnitude(inputMagnitude));
-                            put(spnStr[4], () ->
-                                    earthquakeDao.getGreaterOrEqualMagnitude(inputMagnitude));
-                            put(spnStr[5], () ->
-                                    earthquakeDao.getLessOrEqualMagnitude(inputMagnitude));
-                        }};
-                // Set the filter in MainActivity
-                magnitudeFilter = filterMap.get(operatorSpn.getSelectedItem());
+            // Try with magnitude filter
+            if (magnitudeChk.isChecked()) {
+                magnitudeFilter = getMagnitudeFilter();
             }
-            if (!countrySpn.getSelectedItem().toString().isEmpty()) {
+            // Try with country filter
+            if (countryChk.isChecked()) {
                 countryFilter = () ->
                         earthquakeDao.getByCountry("%" + countrySpn.getSelectedItem() + "%");
             }
+            // Match which filter must be applied
             if (magnitudeFilter != null && countryFilter != null) {
                 // static final copies of vars
                 @NotNull ExecutableFilter finalMagnitudeFilter = magnitudeFilter;
@@ -115,9 +106,37 @@ public class FilterDialog extends DialogFragment {
                 mainActivity.setFilterDao(magnitudeFilter);
             else if (countryFilter != null)
                 mainActivity.setFilterDao(countryFilter);
-            else {
-                // TODO validations failed...
+        }
+
+        private ExecutableFilter getMagnitudeFilter() {
+            if (valueEditText.getText().toString().isEmpty()) {
+                valueEditText.setError("Debe introducir un valor numérico");
+                return null;
             }
+            if (operatorSpn.getSelectedItem().equals("Todas")) {
+                operatorSpn.requestFocus();
+                Toast.makeText(mainActivity,
+                        "Debes seleccionar un filtro para el valor numerico introducido",
+                        Toast.LENGTH_SHORT).show();
+                return null;
+            }
+            Double inputMagnitude = Double
+                    .parseDouble(valueEditText.getText().toString());
+            HashMap<String, ExecutableFilter> filterMap = new
+                    HashMap<String, ExecutableFilter>() {{
+                        put(spnStr[1], () ->
+                                earthquakeDao.getGreaterMagnitude(inputMagnitude));
+                        put(spnStr[2], () ->
+                                earthquakeDao.getLessMagnitude(inputMagnitude));
+                        put(spnStr[3], () ->
+                                earthquakeDao.getEqualMagnitude(inputMagnitude));
+                        put(spnStr[4], () ->
+                                earthquakeDao.getGreaterOrEqualMagnitude(inputMagnitude));
+                        put(spnStr[5], () ->
+                                earthquakeDao.getLessOrEqualMagnitude(inputMagnitude));
+                    }};
+            // Set the filter in MainActivity
+            return filterMap.get(operatorSpn.getSelectedItem());
         }
     }
 }
