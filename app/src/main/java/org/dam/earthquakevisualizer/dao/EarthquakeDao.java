@@ -30,7 +30,7 @@ public interface EarthquakeDao {
     List<Earthquake> getEqualMagnitude(double magnitude);
 
     // Get all earthquakes by given country
-    @Query("SELECT * FROM earthquakes WHERE date IN (SELECT date FROM affected_countries WHERE country = :country)")
+    @Query("SELECT * FROM earthquakes WHERE date IN (SELECT date FROM affected_countries WHERE country LIKE :country)")
     List<Earthquake> getByCountry(String country);
 
     // Insert queries

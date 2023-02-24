@@ -11,6 +11,8 @@ import java.util.List;
 public interface CountryDao {
     @Query("SELECT * FROM affected_countries")
     List<Country> getAll();
+    @Query("SELECT DISTINCT country FROM affected_countries ORDER BY country ASC")
+    String[] getCountries();
 
     @Query("INSERT INTO affected_countries VALUES (:date, :country)")
     void insert(String date, String country);

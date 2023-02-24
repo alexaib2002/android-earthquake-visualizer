@@ -33,7 +33,7 @@
             android:ems="10"
             android:hint="Introduce la magnitud"
             android:inputType="textPersonName"
-            android:textSize="12sp" />
+            android:textSize="14sp" />
 
     </LinearLayout>
 
@@ -43,13 +43,9 @@
         android:text="País"
         android:textSize="16sp" />
 
-    <EditText
-        android:id="@+id/countryEditText"
+    <Spinner
+        android:id="@+id/countrySpn"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Introduce un país"
-        android:inputType="text"
-        android:textSize="12sp" />
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

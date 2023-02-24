@@ -15,6 +15,7 @@ import org.dam.earthquakevisualizer.javabeans.Country;
 import org.dam.earthquakevisualizer.javabeans.Earthquake;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
