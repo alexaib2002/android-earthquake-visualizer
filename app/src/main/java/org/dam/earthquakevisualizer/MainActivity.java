@@ -72,9 +72,6 @@ public class MainActivity extends AppCompatActivity {
             for (Country country : DbDataLoad.COUNTRIES) {
                 db.countryDAO().insert(country.date, country.country);
             }
-            System.out.println("DB was initialized with new data");
         }
-        else
-            System.out.println("Skipping initialization of DB");
     }
 }

@@ -33,7 +33,8 @@
             android:layout_weight="1"
             android:ems="10"
             android:hint="@string/magnitude_txtedit"
-            android:inputType="number"
+            android:inputType="number|numberDecimal"
+            android:maxLength="2"
             android:textSize="14sp" />
 
     </LinearLayout>

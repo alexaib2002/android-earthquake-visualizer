@@ -146,7 +146,11 @@ public class FilterDialog extends DialogFragment {
                 Toast.makeText(mainActivity,
                         getResources().getText(R.string.err_operator_val),
                         Toast.LENGTH_SHORT).show();
-                return true;
+                return false;
+            }
+            if (Double.parseDouble(valueEditText.getText().toString()) > 10) {
+                valueEditText.setError(getString(R.string.err_maxed_value));
+                return false;
             }
             return true;
         }
