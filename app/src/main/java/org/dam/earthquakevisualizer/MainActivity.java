@@ -2,13 +2,13 @@ package org.dam.earthquakevisualizer;
 
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.dam.earthquakevisualizer.dao.EarthquakeDao;
 import org.dam.earthquakevisualizer.db.AppDatabase;
 import org.dam.earthquakevisualizer.db.DbDataLoad;
 import org.dam.earthquakevisualizer.interfaces.ExecutableFilter;
@@ -16,12 +16,12 @@ import org.dam.earthquakevisualizer.javabeans.Country;
 import org.dam.earthquakevisualizer.javabeans.Earthquake;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private Button filterBtn;
     private Button queryBtn;
+    private TextView selectedFilterTv;
     private RecyclerView earthquakeRecView;
     private RecyclerView.LayoutManager layoutManager;
     private ArrayList<Earthquake> earthquakeList = new ArrayList<>();
@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         filterBtn = findViewById(R.id.filterBtn);
         queryBtn = findViewById(R.id.queryBtn);
         earthquakeRecView = findViewById(R.id.earthquakeRecView);
+        selectedFilterTv = findViewById(R.id.selectedFilterTv);
 
         layoutManager = new LinearLayoutManager(this);
         earthquakeRecView.setLayoutManager(layoutManager);
@@ -47,7 +48,8 @@ public class MainActivity extends AppCompatActivity {
             filterDialog.show(getSupportFragmentManager(), "filterDialog");
         });
 
-        filterDao = AppDatabase.getInstance(this).earthquakeDAO()::getAll; // set reference
+        filterDao = AppDatabase.getInstance(this).earthquakeDAO()::getAll;
+        setFilterDao(filterDao.wrapStringOn(getResources().getStringArray(R.array.operators)[0])); // set reference
         queryBtn.setOnClickListener(v -> {
             earthquakeList.clear();
             earthquakeList.addAll(filterDao.run());
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void setFilterDao(ExecutableFilter filterDao) {
         this.filterDao = filterDao;
+        selectedFilterTv.setText(filterDao.toString());
     }
 
     private void initDbLoad() {

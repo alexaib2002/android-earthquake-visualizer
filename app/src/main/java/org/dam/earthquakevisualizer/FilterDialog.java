@@ -2,7 +2,6 @@ package org.dam.earthquakevisualizer;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -20,9 +19,7 @@ import org.dam.earthquakevisualizer.dao.EarthquakeDao;
 import org.dam.earthquakevisualizer.db.AppDatabase;
 import org.dam.earthquakevisualizer.interfaces.ExecutableFilter;
 import org.dam.earthquakevisualizer.javabeans.Earthquake;
-import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -111,14 +108,17 @@ public class FilterDialog extends DialogFragment {
             if (countryChk.isChecked()) {
                 countryFilter = () ->
                         earthquakeDao.getByCountry("%" + countrySpn.getSelectedItem() + "%");
+                countryFilter = countryFilter.wrapStringOn((String) countrySpn.getSelectedItem());
             }
             // Both filters selected
             if (magnitudeFilter != null && countryFilter != null) {
                 ExecutableFilter finalMagnitudeFilter = magnitudeFilter;
                 ExecutableFilter finalCountryFilter = countryFilter;
-                mainActivity.setFilterDao(() -> diffArrays(
+                ExecutableFilter mixedFilter = () -> diffArrays(
                         (ArrayList<Earthquake>) finalMagnitudeFilter.run(),
-                        (ArrayList<Earthquake>) finalCountryFilter.run()));
+                        (ArrayList<Earthquake>) finalCountryFilter.run());
+                mainActivity.setFilterDao(mixedFilter.wrapStringOn(String
+                        .format("%s en %s", magnitudeFilter, countryFilter)));
                 dismiss();
             // Magnitude filter selected
             } else if (magnitudeFilter != null) {
@@ -141,16 +141,17 @@ public class FilterDialog extends DialogFragment {
                     .equals(allTxt)) {
                 valueEditText.setError(getString(R.string.err_number_value));
                 return false;
-            } else if (!valueEditText.getText().toString().isEmpty() && operatorSpn
-                    .getSelectedItem().equals(allTxt)) {
-                Toast.makeText(mainActivity,
-                        getResources().getText(R.string.err_operator_val),
-                        Toast.LENGTH_SHORT).show();
-                return false;
-            }
-            if (Double.parseDouble(valueEditText.getText().toString()) > 10) {
-                valueEditText.setError(getString(R.string.err_maxed_value));
-                return false;
+            } else if (!valueEditText.getText().toString().isEmpty()) {
+                if (operatorSpn.getSelectedItem().equals(allTxt)) {
+                    Toast.makeText(mainActivity,
+                            getResources().getText(R.string.err_operator_val),
+                            Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+                if (Double.parseDouble(valueEditText.getText().toString()) > 10) {
+                    valueEditText.setError(getString(R.string.err_maxed_value));
+                    return false;
+                }
             }
             return true;
         }
@@ -160,6 +161,7 @@ public class FilterDialog extends DialogFragment {
             String allTxt = getResources().getStringArray(R.array.operators)[0];
             if (operatorSpn.getSelectedItem().equals(allTxt)) {
                 magnitudeFilter = earthquakeDao::getAll;
+                magnitudeFilter = magnitudeFilter.wrapStringOn(spnStr[0]);
             } else {
                 Double inputMagnitude = Double
                         .parseDouble(valueEditText.getText().toString());
@@ -177,7 +179,8 @@ public class FilterDialog extends DialogFragment {
                                     earthquakeDao.getLessOrEqualMagnitude(inputMagnitude));
                         }};
                 // Set the filter in MainActivity
-                magnitudeFilter = filterMap.get(operatorSpn.getSelectedItem());
+                magnitudeFilter = filterMap.get(operatorSpn.getSelectedItem()).wrapStringOn(String
+                        .format("%s %s", operatorSpn.getSelectedItem(), inputMagnitude));
             }
             return magnitudeFilter;
         }
