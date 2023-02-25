@@ -187,11 +187,12 @@ public class FilterDialog extends DialogFragment {
 
         private ArrayList<Earthquake> diffArrays(ArrayList<Earthquake> magnitudeList,
                                                  ArrayList<Earthquake> countryList) {
+            ArrayList<Earthquake> diffList = new ArrayList<>();
             for (Earthquake magEarth : magnitudeList) {
-                if (!countryList.contains(magEarth))
-                    countryList.remove(magEarth);
+                if (countryList.contains(magEarth))
+                    diffList.add(magEarth);
             }
-            return countryList;
+            return diffList;
         }
     }
 }
