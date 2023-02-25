@@ -99,75 +99,92 @@ public class FilterDialog extends DialogFragment {
     private class FilterAcceptListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            String allTxt = getResources().getStringArray(R.array.operators)[0];
             ExecutableFilter magnitudeFilter = null;
             ExecutableFilter countryFilter = null;
             // Try with magnitude filter
             if (magnitudeChk.isChecked()) {
-                if (valueEditText.getText().toString().isEmpty() && !operatorSpn.getSelectedItem()
-                        .equals(allTxt)) {
-                    valueEditText.setError(getString(R.string.err_number_value));
-                    return;
-                } else if (!valueEditText.getText().toString().isEmpty() && operatorSpn
-                        .getSelectedItem().equals(allTxt)) {
-                    Toast.makeText(mainActivity,
-                            getResources().getText(R.string.err_operator_val),
-                            Toast.LENGTH_SHORT).show();
-                    return;
-                } else if (operatorSpn.getSelectedItem().equals(allTxt)) {
-                    magnitudeFilter = earthquakeDao::getAll;
-                } else {
-                    Double inputMagnitude = Double
-                            .parseDouble(valueEditText.getText().toString());
-                    HashMap<String, ExecutableFilter> filterMap = new
-                            HashMap<String, ExecutableFilter>() {{
-                                put(spnStr[1], () ->
-                                        earthquakeDao.getGreaterMagnitude(inputMagnitude));
-                                put(spnStr[2], () ->
-                                        earthquakeDao.getLessMagnitude(inputMagnitude));
-                                put(spnStr[3], () ->
-                                        earthquakeDao.getEqualMagnitude(inputMagnitude));
-                                put(spnStr[4], () ->
-                                        earthquakeDao.getGreaterOrEqualMagnitude(inputMagnitude));
-                                put(spnStr[5], () ->
-                                        earthquakeDao.getLessOrEqualMagnitude(inputMagnitude));
-                            }};
-                    // Set the filter in MainActivity
-                    magnitudeFilter = filterMap.get(operatorSpn.getSelectedItem());
-                }
+                if (!validateEarthquakeFilter())
+                    return ;
+                magnitudeFilter = generateEarthquakeFilter();
             }
             // Try with country filter
             if (countryChk.isChecked()) {
                 countryFilter = () ->
                         earthquakeDao.getByCountry("%" + countrySpn.getSelectedItem() + "%");
             }
-            // Match which filter must be applied
+            // Both filters selected
             if (magnitudeFilter != null && countryFilter != null) {
-                // static final copies of vars
-                @NotNull ExecutableFilter finalMagnitudeFilter = magnitudeFilter;
-                @NotNull ExecutableFilter finalCountryFilter = countryFilter;
-                mainActivity.setFilterDao(() -> {
-                    ArrayList<Earthquake> countryList = new ArrayList<>(finalCountryFilter.run());
-                    ArrayList<Earthquake> bothList = new ArrayList<>();
-                    for (Earthquake magEarth : finalMagnitudeFilter.run()) {
-                        if (countryList.contains(magEarth))
-                            bothList.add(magEarth);
-                    }
-                    return bothList;
-                });
+                ExecutableFilter finalMagnitudeFilter = magnitudeFilter;
+                ExecutableFilter finalCountryFilter = countryFilter;
+                mainActivity.setFilterDao(() -> diffArrays(
+                        (ArrayList<Earthquake>) finalMagnitudeFilter.run(),
+                        (ArrayList<Earthquake>) finalCountryFilter.run()));
                 dismiss();
+            // Magnitude filter selected
             } else if (magnitudeFilter != null) {
                 mainActivity.setFilterDao(magnitudeFilter);
                 dismiss();
-            }
-            else if (countryFilter != null) {
+            // Country filter selected
+            } else if (countryFilter != null) {
                 mainActivity.setFilterDao(countryFilter);
                 dismiss();
-            }
-            else {
+            // None
+            } else {
                 Toast.makeText(mainActivity, R.string.err_no_filter,
                         Toast.LENGTH_SHORT).show();
             }
+        }
+
+        private boolean validateEarthquakeFilter() {
+            String allTxt = getResources().getStringArray(R.array.operators)[0];
+            if (valueEditText.getText().toString().isEmpty() && !operatorSpn.getSelectedItem()
+                    .equals(allTxt)) {
+                valueEditText.setError(getString(R.string.err_number_value));
+                return false;
+            } else if (!valueEditText.getText().toString().isEmpty() && operatorSpn
+                    .getSelectedItem().equals(allTxt)) {
+                Toast.makeText(mainActivity,
+                        getResources().getText(R.string.err_operator_val),
+                        Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            return true;
+        }
+
+        public ExecutableFilter generateEarthquakeFilter() {
+            ExecutableFilter magnitudeFilter;
+            String allTxt = getResources().getStringArray(R.array.operators)[0];
+            if (operatorSpn.getSelectedItem().equals(allTxt)) {
+                magnitudeFilter = earthquakeDao::getAll;
+            } else {
+                Double inputMagnitude = Double
+                        .parseDouble(valueEditText.getText().toString());
+                HashMap<String, ExecutableFilter> filterMap = new
+                        HashMap<String, ExecutableFilter>() {{
+                            put(spnStr[1], () ->
+                                    earthquakeDao.getGreaterMagnitude(inputMagnitude));
+                            put(spnStr[2], () ->
+                                    earthquakeDao.getLessMagnitude(inputMagnitude));
+                            put(spnStr[3], () ->
+                                    earthquakeDao.getEqualMagnitude(inputMagnitude));
+                            put(spnStr[4], () ->
+                                    earthquakeDao.getGreaterOrEqualMagnitude(inputMagnitude));
+                            put(spnStr[5], () ->
+                                    earthquakeDao.getLessOrEqualMagnitude(inputMagnitude));
+                        }};
+                // Set the filter in MainActivity
+                magnitudeFilter = filterMap.get(operatorSpn.getSelectedItem());
+            }
+            return magnitudeFilter;
+        }
+
+        private ArrayList<Earthquake> diffArrays(ArrayList<Earthquake> magnitudeList,
+                                                 ArrayList<Earthquake> countryList) {
+            for (Earthquake magEarth : magnitudeList) {
+                if (!countryList.contains(magEarth))
+                    countryList.remove(magEarth);
+            }
+            return countryList;
         }
     }
 }
